@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 router.post('/cadastrar', async (req, res)=>{
     const { numeroBeneficio } = req.body;
     try{
-        if(await Socio.findOne({ cadastrar }))
+        if(await Socio.findOne({ numeroBeneficio }))
             return res.status(400).send({ error: "Socio já cadastrado" });
         const socio = await Socio.create(req.body);
 
@@ -23,4 +23,4 @@ router.post('/cadastrar', async (req, res)=>{
     }
 });
 
-module.exports = app => app.use('/socios', router);
+module.exports = app => app.use('/socio', router);

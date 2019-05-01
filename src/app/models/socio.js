@@ -5,15 +5,6 @@ const SocioSchema = new mongoose.Schema({
         type: String,
         require: true,
     },
-    email: {
-        type: String,
-        required: true,
-        lowercase: true,
-    },
-    telefone: {
-        type: String,
-        required: true,
-    },
     cpf: {
         type: String,
         require: true,
