@@ -56,4 +56,25 @@ router.get('/listar', async (req, res)=>{
     }
 });
 
+router.delete('/', async (req, res)=> {
+    checkPermission(4,req.permission,res);
+    try{
+        const { idturma } = req.body;
+        const turma = await Turma.findOne({ "_id":idturma });
+        if(turma){
+            turma.alunos.forEach(async (element) => {
+                socio = await Socio.findOne({"_id":element});
+                socio.turma = undefined;
+                await socio.save();
+            });
+            await Turma.deleteOne({ _id: idturma })
+            return res.send(turma);
+        }else{
+            return res.status(400).send({error: 'Turma não encontrada'});
+        }        
+    }catch(err){
+        return res.status(400).send({error: 'Falha na consulta'}); 
+    }
+});
+
 module.exports = app => app.use('/turma', router);
