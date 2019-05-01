@@ -33,10 +33,13 @@ router.post('/adicionaraluno', async (req, res)=>{
         const { idturma,idsocio } = req.body;
         if(await Turma.findOne({ "alunos":idsocio }))
             return res.status(400).send({error: 'Socio já está em uma turma.'});
+
         const turma = await Turma.findOne({ "_id":idturma });
         const socio = await Socio.findOne({ "_id":idsocio });
+
         socio.turma = idturma;
         await socio.save();
+        
         turma.alunos.push(socio);
         await turma.save();
         
@@ -49,7 +52,7 @@ router.post('/adicionaraluno', async (req, res)=>{
 router.get('/listar', async (req, res)=>{
     checkPermission(1,req.permission,res);
     try{
-        const turma = await Turma.find({}).populate("alunos");
+        const turma = await Turma.find({}).populate("alunos",["cpf","numeroBeneficio","nome"]);
         return res.send(turma);
     }catch(err){
         return res.status(400).send({error: 'Falha na consulta'});

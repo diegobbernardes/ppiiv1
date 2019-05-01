@@ -18,6 +18,10 @@ const SocioSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Turma' 
     },
+    descontos: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Repasse',
+    }],
     createdAt: {
         type: Date,
         default: Date.now,

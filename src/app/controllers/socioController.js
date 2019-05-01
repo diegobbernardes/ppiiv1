@@ -2,6 +2,7 @@ const express = require('express');
 const authMiddleware = require('../middlewares/auth')
 const Socio = require('../models/socio');
 const Turma = require('../models/turma');
+const Repasse = require('../models/repasse');
 
 const router = express.Router();
 
@@ -23,6 +24,14 @@ router.post('/cadastrar', async (req, res)=>{
         if(await Socio.findOne({ numeroBeneficio }))
             return res.status(400).send({ error: "Socio já cadastrado" });
         const socio = await Socio.create(req.body);
+        
+        const repasse = await Repasse.find({"numeroBeneficio":socio.numeroBeneficio});
+        if(repasse){
+            repasse.forEach(async (element) => {
+                element.socio = socio._id
+                await element.save();
+            });
+        }
 
         return res.send({ socio });
     }catch(err){
@@ -33,7 +42,7 @@ router.post('/cadastrar', async (req, res)=>{
 router.get('/listar', async (req, res)=>{
     checkPermission(1,req.permission,res);
     try{
-        const socios = await Socio.find({}).populate('turma','turma');
+        const socios = await Socio.find({}).populate('turma','turma').populate('descontos',['valor','competencia']);
         return res.send(socios);
     }catch(err){
         return res.status(400).send({error: 'Falha na consulta'});

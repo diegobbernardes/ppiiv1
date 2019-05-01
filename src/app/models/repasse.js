@@ -19,10 +19,10 @@ const RepasseSchema = new mongoose.Schema({
     },
     socio: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Socio' 
+        ref: 'Socio',
     },
 });
 
-const Socio = mongoose.model("Socio",SocioSchema);
+const Repasse = mongoose.model("Repasse",RepasseSchema);
 
-module.exports = Socio;
+module.exports = Repasse;
