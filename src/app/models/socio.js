@@ -14,6 +14,10 @@ const SocioSchema = new mongoose.Schema({
         unique: true,
         require: true,
     },
+    turma: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Turma' 
+    },
     createdAt: {
         type: Date,
         default: Date.now,

@@ -15,10 +15,6 @@ function checkPermission(routePermission, userPermission, res){
     }
 }
 
-router.get('/', (req, res) => {
-    res.send({ok: true, user: req.permission});
-});
-
 router.post('/cadastrar', async (req, res)=>{
     checkPermission(2,req.permission,res);
     const { numeroBeneficio } = req.body;
@@ -33,11 +29,11 @@ router.post('/cadastrar', async (req, res)=>{
     }
 });
 
-router.post('/listar', async (req, res)=>{
+router.get('/listar', async (req, res)=>{
     checkPermission(1,req.permission,res);
     try{
-        const users = await User.find({}).select('+password');
-        return res.send(users);
+        const socios = await Socio.find({}).populate('turma','turma');
+        return res.send(socios);
     }catch(err){
         return res.status(400).send({error: 'Falha na consulta'});
     }
