@@ -17,6 +17,13 @@ const UserSchema = new mongoose.Schema({
         require: true,
         select: false,
     },
+    permission: {
+        type: Number,
+        get: v => Math.round(v),
+        set: v => Math.round(v),
+        alias: 'i',
+        default: 2
+    },
     createdAt: {
         type: Date,
         default: Date.now,
