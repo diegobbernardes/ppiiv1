@@ -29,15 +29,46 @@ router.post('/', async (req, res) => {
         const { idsocio,competencias } = req.body; 
         if(!idsocio || !competencias)
             return res.status(400).send({error: 'Dados não informados'});
-
+        
+        //verifica se existe socio
         const socio = await Socio.findOne({ '_id' : idsocio});
         if(!socio)
             return res.status(400).send({error: 'Socio não encontrado'});
 
-        const repasse = await Repasse.find({ 'numeroBeneficio' : socio.numeroBeneficio }).limit(competencias);
-        if(!repasse)
+        //verifica se existe desconto e verifica quantidade de descontos
+        const repasseVerificador = await Repasse.find({ 'numeroBeneficio' : socio.numeroBeneficio });
+        if(!repasseVerificador)
             return res.status(400).send({error: 'Nenhum desconto encontrado'});
-            
+        numCompetenciasDescontadas = 0;
+        await asyncForEach(repasseVerificador, async (element) => {
+            numCompetenciasDescontadas +=1;
+        });
+
+        //verifica quantos descontos já foram ressarcidos
+        numCompetenciasPagamento = 0;
+        const ressarcimentoVerificador = await Ressarcimento.find({"socio":idsocio});
+        if(ressarcimentoVerificador){
+            await asyncForEach(ressarcimentoVerificador, async (element) => {
+                numCompetenciasPagamento +=element.competencias;
+            });
+        }
+
+        //verifica se já foi adicionada todas os descontos para ressarcimento
+        if((numCompetenciasDescontadas-numCompetenciasPagamento)<=0){
+            return res.status(400).send({error: 'Não há competencias para pagamento'});
+        }
+
+        //verifica o limite de descontos para ressarcimento
+        limit = 0
+        if((numCompetenciasDescontadas-numCompetenciasPagamento)<competencias){
+            limit = numCompetenciasDescontadas-numCompetenciasPagamento;
+        }else{
+            limit = competencias
+        }
+        
+        //busca descontos para ressarcimento com o limite
+        const repasse = await Repasse.find({ 'numeroBeneficio' : socio.numeroBeneficio }).limit(limit);
+
         valorPagamento = 0;
         numCompetencias = 0;
         await asyncForEach(repasse, async (element) => {
