@@ -17,6 +17,12 @@ function checkPermission(routePermission, userPermission, res){
     }
 }
 
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
+}
+
 router.post('/cadastrar', async (req, res)=>{
     checkPermission(2,req.permission,res);
     const { numeroBeneficio } = req.body;
@@ -27,11 +33,14 @@ router.post('/cadastrar', async (req, res)=>{
         
         const repasse = await Repasse.find({"numeroBeneficio":socio.numeroBeneficio});
         if(repasse){
-            repasse.forEach(async (element) => {
-                element.socio = socio._id
+            await asyncForEach(repasse, async (element) => {
+                element.socio = socio._id;
                 await element.save();
+
+                socio.descontos.push(element._id);
             });
-        }
+            await socio.save();         
+        }      
 
         return res.send({ socio });
     }catch(err){
@@ -57,10 +66,18 @@ router.delete('/excluir', async (req, res)=> {
         if(socio){                      
             idturma = socio.turma;
             turma = await Turma.findOne({"_id":idturma});
-            
-            console.log(turma);
-            turma.alunos.pull(idsocio);
-            await turma.save();           
+            if(turma){  
+                turma.alunos.pull(idsocio);
+                await turma.save();
+            }
+
+            const repasse = await Repasse.find({"socio":socio._id});
+            if(repasse){
+                repasse.forEach(async (element) => {
+                    element.socio = undefined;
+                    await element.save();
+                });
+            }
 
             socios = await Socio.deleteOne({ _id: idsocio })
             return res.send(socios);

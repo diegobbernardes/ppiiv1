@@ -16,6 +16,12 @@ function checkPermission(routePermission, userPermission, res){
     }
 }
 
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
+}
+
 router.post('/cadastrar', async (req, res)=>{
     checkPermission(2,req.permission,res);
     try{
@@ -39,7 +45,7 @@ router.post('/adicionaraluno', async (req, res)=>{
 
         socio.turma = idturma;
         await socio.save();
-        
+
         turma.alunos.push(socio);
         await turma.save();
         
@@ -65,7 +71,7 @@ router.delete('/', async (req, res)=> {
         const { idturma } = req.body;
         const turma = await Turma.findOne({ "_id":idturma });
         if(turma){
-            turma.alunos.forEach(async (element) => {
+            await asyncForEach(turma.alunos, async (element) => {
                 socio = await Socio.findOne({"_id":element});
                 socio.turma = undefined;
                 await socio.save();
