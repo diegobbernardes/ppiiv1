@@ -3,6 +3,7 @@ const authMiddleware = require('../middlewares/auth')
 const Socio = require('../models/socio');
 const Turma = require('../models/turma');
 const Repasse = require('../models/repasse');
+const Ressarcimento = require('../models/ressarcimento')
 
 const router = express.Router();
 
@@ -73,9 +74,16 @@ router.delete('/excluir', async (req, res)=> {
 
             const repasse = await Repasse.find({"socio":socio._id});
             if(repasse){
-                repasse.forEach(async (element) => {
+                await asyncForEach(repasse, async (element) => {
                     element.socio = undefined;
                     await element.save();
+                });
+            }
+
+            const ressarcimento = await Ressarcimento.find({"socio":socio._id});
+            if(ressarcimento){
+                await asyncForEach(ressarcimento, async (element) => {
+                    await Ressarcimento.deleteOne({ _id: element._id });
                 });
             }
 

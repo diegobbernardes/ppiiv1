@@ -82,4 +82,15 @@ router.post('/finalizar', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    checkPermission(2,req.permission,res);
+    try{
+        const ressarcimento = await Ressarcimento.find({});
+
+        return res.send(ressarcimento);
+    }catch(err){
+        return res.status(400).send({error: 'Erro ao listar ressarcimentos'});
+    }
+});
+
 module.exports = app => app.use('/ressarcimento', router);
