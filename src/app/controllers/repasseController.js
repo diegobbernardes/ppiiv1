@@ -41,8 +41,17 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req,res) => {
     checkPermission(4,req.permission,res);
+    const { cpf,numeroBeneficio,competencia } = req.body;
+    where = {};
     try{
-        repasse = await Repasse.find({}).populate('socio','nome');
+        if(numeroBeneficio)
+            where = {"numeroBeneficio":numeroBeneficio};
+        else if(cpf)
+            where = {"cpf":cpf};
+        else if(competencia)
+            where = {"competencia":competencia}
+            
+        repasse = await Repasse.find(where).populate('socio','nome');
 
         return res.send({ repasse });
     }catch(err){
