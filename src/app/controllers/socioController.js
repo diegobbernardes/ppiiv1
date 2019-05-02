@@ -51,7 +51,7 @@ router.post('/cadastrar', async (req, res)=>{
 router.get('/listar', async (req, res)=>{
     checkPermission(1,req.permission,res);
     try{
-        const socios = await Socio.find({}).populate('turma','turma').populate('descontos',['valor','competencia']);
+        const socios = await Socio.find({}).populate('turma','turma').populate('descontos',['valor','competencia']).populate('ressarcimentos',['valor','pago','dataPagamento','descontos']);
         return res.send(socios);
     }catch(err){
         return res.status(400).send({error: 'Falha na consulta'});

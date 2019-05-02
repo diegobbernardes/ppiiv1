@@ -22,6 +22,10 @@ const SocioSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Repasse',
     }],
+    ressarcimentos: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Ressarcimento',
+    }],
     createdAt: {
         type: Date,
         default: Date.now,
